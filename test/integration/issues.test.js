@@ -63,4 +63,33 @@ describe('Issues', () => {
     expect(response.text).to.eql('comment updated')
   })
 
+  it('notifies opened issue', async () => {
+    nock('https://slack.com')
+      .post('/api/chat.postMessage')
+      .query(true)
+      .reply(200, { ok: true })
+
+    let response = await chai.request(server)
+      .post('/hooks')
+      .set('x-github-event', 'issues')
+      .send({
+        action: 'opened',
+        issue: {
+          number: 1,
+          title: 'issue title',
+          html_url: 'https://github.com',
+          body: 'issue content',
+          user: {
+            login: 'githubuser'
+          }
+        },
+        repository: {
+          full_name: 'owner/repository-name'
+        }
+      })
+
+    expect(response).status(200)
+    expect(response.text).to.eql('notified')
+  })
+
 })
