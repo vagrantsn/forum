@@ -92,4 +92,33 @@ describe('Issues', () => {
     expect(response.text).to.eql('notified')
   })
 
+  it('assigns to issue on slack action', async () => {
+    let response = await chai.request(server)
+      .post('/actions')
+      .send({
+        type: 'interactive_message',
+        actions: [
+          {
+            name: 'assign',
+            type: 'button',
+            value: 'assign'
+          }
+        ]
+      })
+
+    let expected = [
+      {
+        action: {
+          name: 'assign',
+          type: 'button',
+          value: 'assign'
+        },
+        response: 'assign action processed'
+      }
+    ]
+
+    expect(response).status(200)
+    expect(response.text).to.eql(JSON.stringify(expected))
+  })
+
 })

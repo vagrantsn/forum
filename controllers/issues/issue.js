@@ -11,7 +11,17 @@ const issue = async (req, res) => {
       title: issue.title,
       title_link: issue.html_url,
       text: issue.body.length > 0? `${issue.body.substr(0, 200)}...` : 'No description provided.',
-      footer: `${repository.full_name} #${issue.number}`
+      footer: `${repository.full_name} #${issue.number}`,
+      response_url: `${req.protocol}://${req.get('host')}/actions`,
+      callback_id: 1,
+      actions: [
+        {
+          name: 'assign',
+          text: 'Assign',
+          type: 'button',
+          value: 'assign'
+        }
+      ]
     }
   ]
 
