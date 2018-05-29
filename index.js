@@ -7,6 +7,9 @@ const routes = require('./routes')
 let app = express()
 
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+ extended: true
+}))
 app.use('/', routes)
 
 app.listen(3000, () => console.log('Listening on port 3000...'))

@@ -1,3 +1,4 @@
+const redis = require('../../clients/redis')
 const slack = require('../../clients/slack')
 
 const issue = async (req, res) => {
@@ -5,6 +6,7 @@ const issue = async (req, res) => {
     action, issue, repository
   } = req.body
 
+  const callback_id = 1
   const attachments = [
     {
       author_name: issue.user.login,
@@ -12,8 +14,7 @@ const issue = async (req, res) => {
       title_link: issue.html_url,
       text: issue.body.length > 0? `${issue.body.substr(0, 200)}...` : 'No description provided.',
       footer: `${repository.full_name} #${issue.number}`,
-      response_url: `${req.protocol}://${req.get('host')}/actions`,
-      callback_id: 1,
+      callback_id,
       actions: [
         {
           name: 'assign',
@@ -24,6 +25,18 @@ const issue = async (req, res) => {
       ]
     }
   ]
+
+  redis.set(callback_id, JSON.stringify({
+    repository: {
+      name: repository.name,
+      owner: repository.owner.login
+    },
+    issue: {
+      title: issue.title,
+      number: issue.number,
+      url: issue.url
+    }
+  }))
 
   slack.chat.postMessage({ channel: process.env.NOTIFICATION_CHANNEL, text: 'Issue arrived!', attachments })
   .then( () => res.send('notified') )
