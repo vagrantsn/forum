@@ -21,9 +21,9 @@ const actionProcessor = async (req, res) => {
     })
   })
 
-  await Promise.all(promises)
+  Promise.all(promises)
 
-  res.send(actionsProcessed)
+  req.status(200).send()
 }
 
 module.exports = {

@@ -1,32 +1,37 @@
 const redis = require('../../clients/redis')
 const slack = require('../../clients/slack')
+const { sendMessage } = require('../../helpers/slack')
+const { createContext } = require('../../helpers/redis')
+
+const generateAssignMessage = (issue, repository, callback_id) => Object.assign({
+  author_name: issue.user.login,
+  title: issue.title,
+  title_link: issue.html_url,
+  text: issue || 'No description provided.',
+  footer: `${repository.full_name} #${issue.number}`,
+  callback_id,
+  actions: [
+    {
+      name: 'assign',
+      text: 'Assign',
+      type: 'button',
+      value: 'assign'
+    },
+    {
+      name: 'test',
+      text: 'test',
+      type: 'button',
+      value: 'test'
+    }
+  ]
+})
 
 const issue = async (req, res) => {
   const {
     action, issue, repository
   } = req.body
 
-  const callback_id = 1
-  const attachments = [
-    {
-      author_name: issue.user.login,
-      title: issue.title,
-      title_link: issue.html_url,
-      text: issue.body.length > 0? `${issue.body.substr(0, 200)}...` : 'No description provided.',
-      footer: `${repository.full_name} #${issue.number}`,
-      callback_id,
-      actions: [
-        {
-          name: 'assign',
-          text: 'Assign',
-          type: 'button',
-          value: 'assign'
-        }
-      ]
-    }
-  ]
-
-  redis.set(callback_id, JSON.stringify({
+  let contextData = JSON.stringify({
     repository: {
       name: repository.name,
       owner: repository.owner.login
@@ -36,9 +41,19 @@ const issue = async (req, res) => {
       number: issue.number,
       url: issue.url
     }
-  }))
+  })
 
-  slack.chat.postMessage({ channel: process.env.NOTIFICATION_CHANNEL, text: 'Issue arrived!', attachments })
+  let contextId = createContext(redis, contextData)
+
+  const assignToIssue = generateAssignMessage(issue, repository, contextId)
+
+  await sendMessage(slack, {
+    channel: process.env.NOTIFICATION_CHANNEL,
+    message: 'Issue arrived!',
+    attachments: [
+      assignToIssue
+    ]
+  })
   .then( () => res.send('notified') )
   .catch( () => res.status(500).send('slack connection failed') )
 }
