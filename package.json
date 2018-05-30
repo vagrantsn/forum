@@ -4,17 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "npm run test:integration && npm run test:unit",
-    "test:integration": "nyc mocha test/integration --timeout 5000 --exit",
-    "test:unit": "nyc mocha test/unit --timeout 5000 --exit"
+    "test:integration": "env NODE_ENV=test nyc mocha test/integration --timeout 5000 --exit",
+    "test:unit": "env NODE_ENV=test nyc mocha test/unit --timeout 5000 --exit"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@octokit/rest": "^15.2.7",
+    "@slack/client": "^4.2.2",
+    "axios": "^0.18.0",
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "ioredis": "^3.2.2",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
