@@ -47,15 +47,19 @@ const issue = async (req, res) => {
 
   const assignToIssue = generateAssignMessage(issue, repository, contextId)
 
-  await sendMessage(slack, {
-    channel: process.env.NOTIFICATION_CHANNEL,
-    message: 'Issue arrived!',
-    attachments: [
-      assignToIssue
-    ]
-  })
-  .then( () => res.send('notified') )
-  .catch( () => res.status(500).send('slack connection failed') )
+  try {
+    await sendMessage(slack, {
+      channel: process.env.NOTIFICATION_CHANNEL,
+      message: 'Issue arrived!',
+      attachments: [
+        assignToIssue
+      ]
+    })
+
+    res.status(200).send()
+  } catch(e) {
+    res.status(500).send('slack connection failed')
+  }
 }
 
 module.exports = {

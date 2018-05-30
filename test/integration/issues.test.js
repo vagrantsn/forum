@@ -93,7 +93,37 @@ describe('Issues', () => {
       })
 
     expect(response).status(200)
-    expect(response.text).to.eql('notified')
+  })
+
+  it('notifies failed notification for new issue', async () => {
+    nock('https://slack.com')
+      .post('/api/chat.postMessage')
+      .query(true)
+      .reply(200, { ok: false })
+
+    let response = await chai.request(server)
+      .post('/hooks')
+      .set('x-github-event', 'issues')
+      .send({
+        action: 'opened',
+        issue: {
+          number: 1,
+          title: 'issue title',
+          html_url: 'https://github.com',
+          body: 'issue content',
+          user: {
+            login: 'githubuser'
+          }
+        },
+        repository: {
+          full_name: 'owner/repository-name',
+          owner: {
+            login: 'owner'
+          }
+        }
+      })
+
+    expect(response).status(500)
   })
 
   it('assigns to issue on slack action', async () => {
@@ -146,19 +176,7 @@ describe('Issues', () => {
       })
     })
 
-    let expected = [
-      {
-        action: {
-          name: 'assign',
-          type: 'button',
-          value: 'assign'
-        },
-        response: 'assign action processed'
-      }
-    ]
-
     expect(response).status(200)
-    expect(response.text).to.eql(JSON.stringify(expected))
   })
 
 })

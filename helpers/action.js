@@ -23,7 +23,7 @@ const actionProcessor = async (req, res) => {
 
   Promise.all(promises)
 
-  req.status(200).send()
+  res.status(200).send()
 }
 
 module.exports = {
