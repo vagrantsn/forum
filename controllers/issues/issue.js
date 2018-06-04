@@ -18,10 +18,19 @@ const generateAssignMessage = (issue, repository, callback_id) => Object.assign(
       value: 'assign'
     },
     {
-      name: 'test',
-      text: 'test',
-      type: 'button',
-      value: 'test'
+      name: 'addlabel',
+      text: 'Add Label',
+      type: 'select',
+      options: [
+        {
+          text: 'Dúvida',
+          value: 'Dúvida'
+        },
+        {
+          text: 'Problema',
+          value: 'Problema'
+        }
+      ]
     }
   ]
 })

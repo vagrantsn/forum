@@ -2,7 +2,11 @@ const chai = require('chai')
 
 const expect = chai.expect
 
-const { hideAuthenticationKeys } = require('../../helpers/content')
+const {
+  hasApiKey,
+  hasEncryptionKey,
+  hideAuthenticationKeys 
+} = require('../../helpers/content')
 
 describe('content helpers', () => {
   let replacement
@@ -10,6 +14,18 @@ describe('content helpers', () => {
   beforeEach( () => {
     replacement = 'hidden content'
   })
+
+  it('matches api key', () => {
+    expect(hasApiKey('ak_test_b5sa987')).to.eql(true)
+    expect(hasApiKey('ik_live_1sdw1xxv')).to.eql(false)
+    expect(hasApiKey('ak_test_Qqsa84as')).to.eql(true)
+  })
+
+  it('matches encryption key', () => {
+    expect(hasEncryptionKey('ek_test_123qwe')).to.eql(true)
+    expect(hasEncryptionKey('ek_live_123qwe')).to.eql(true)
+    expect(hasEncryptionKey('uk_test_123qwe')).to.eql(false)
+  });
 
   it('hides API Key from text', () => {
     const key = 'ak_live_123qwe'
