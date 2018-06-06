@@ -2,7 +2,7 @@ const Promise = require('bluebird')
 
 const controllers = require('../controllers')
 
-const actionProcessor = async (req, res) => {
+const actionPreprocessor = async (req, res) => {
   const { type, actions } = JSON.parse(req.body.payload)
 
   if( type !== 'interactive_message' ) {
@@ -27,5 +27,5 @@ const actionProcessor = async (req, res) => {
 }
 
 module.exports = {
-  actionProcessor
+  actionPreprocessor
 }

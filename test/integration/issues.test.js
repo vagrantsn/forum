@@ -163,6 +163,7 @@ describe('Issues', () => {
         payload: JSON.stringify({
           type: 'interactive_message',
           callback_id,
+          response_url: 'https://github.com',
           actions: [
             {
               name: 'assign',
@@ -175,6 +176,49 @@ describe('Issues', () => {
           }
       })
     })
+
+    expect(response).status(200)
+  })
+
+  it('adds label to issue on slack action', async () => {
+    const callback_id = 1
+
+    redis.set(callback_id, JSON.stringify({
+      repository: {
+        name: 'repo',
+        owner: 'owner'
+      },
+      issue: {
+        number: 1
+      }
+    }))
+
+    nock('https://api.github.com')
+      .post('/repos/owner/repo/issues/1/labels')
+      .query(true)
+      .reply(200)
+
+    let response = await chai.request(server)
+      .post('/actions')
+      .type('form')
+      .send({
+        payload: JSON.stringify({
+          type: 'interactive_message',
+          callback_id,
+          response_url: 'https://github.com',
+          actions: [
+            {
+              name: 'addlabel',
+              type: 'select',
+              selected_options: [
+                {
+                  value: 'customlabel'
+                }
+              ]
+            }
+          ]
+        })
+      })
 
     expect(response).status(200)
   })

@@ -31,4 +31,6 @@ const assign = async (req, res, action) => {
   .catch( () => axios.post(response_url, { text: 'Oops! It looks like something has broken :S' }) )
 }
 
-module.exports = assign
+module.exports = {
+  'assign': assign
+}
