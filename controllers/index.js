@@ -1,7 +1,7 @@
-const issues = require('./issues')
+const events = require('./events')
 const actions = require('./actions')
 
 module.exports = {
-  ...issues,
+  ...events,
   actions
 }

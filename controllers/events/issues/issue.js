@@ -1,7 +1,7 @@
-const redis = require('../../clients/redis')
-const slack = require('../../clients/slack')
-const { sendMessage } = require('../../helpers/slack')
-const { createContext } = require('../../helpers/redis')
+const redis = require('../../../clients/redis')
+const slack = require('../../../clients/slack')
+const { sendMessage } = require('../../../helpers/slack')
+const { createContext } = require('../../../helpers/redis')
 
 const generateAssignMessage = (issue, repository, callback_id) => Object.assign({
   author_name: issue.user.login,

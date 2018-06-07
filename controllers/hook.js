@@ -1,18 +1,18 @@
-const controllers = require('../controllers')
+const events = require('./events')
 
 const hookPreprocessor = (req, res) => {
   const event = req.headers['x-github-event']
   const { action } = req.body
 
-  if( !controllers[event] ) {
+  if( !events[event] ) {
     return res.status(403).send(`unsupported event ${event}`)
   }
 
-  if( !controllers[event][action] ) {
+  if( !events[event][action] ) {
     return res.status(403).send(`unsupported action ${action}`)
   }
 
-  let eventProcessor = controllers[event][action]
+  let eventProcessor = events[event][action]
 
   return eventProcessor(req, res)
 }

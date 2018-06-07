@@ -1,6 +1,6 @@
-const github = require('../../clients/github')
+const github = require('../../../clients/github')
 
-const { hideAuthenticationKeys } = require('../../helpers/content')
+const { hideAuthenticationKeys } = require('../../../helpers/content')
 
 const comment = async (req, res, next) => {
   const {

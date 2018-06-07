@@ -1,6 +1,5 @@
 const Promise = require('bluebird')
-
-const controllers = require('../controllers')
+const slackActions = require('./actions')
 
 const actionPreprocessor = async (req, res) => {
   const { type, actions } = JSON.parse(req.body.payload)
@@ -12,7 +11,7 @@ const actionPreprocessor = async (req, res) => {
   let actionsProcessed = []
 
   let promises = actions.map( async action => {
-    let actionProcessor = controllers['actions'][action.name]
+    let actionProcessor = slackActions[action.name]
     let response = await actionProcessor(req, res, action)
 
     actionsProcessed.push({
