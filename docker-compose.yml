@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  pagarme-forum:
+    container_name: pagarme-forum
+    build: .
+    ports:
+      - 3000:3000
+    environment:
+      - REDIS_HOST=redis_forum
+    env_file: .env
+    volumes:
+      - .:/src
+    depends_on:
+      - mongo_forum
+      - redis_forum
+
+  mongo_forum:
+    image: mongo
+    container_name: "mongo_forum"
+
+  redis_forum:
+    image: redis
+    container_name: "redis_forum"
