@@ -1,9 +1,7 @@
 const express = require('express')
 
-const { hookPreprocessor } = require('../helpers/hook')
-const { actionPreprocessor } = require('../helpers/action')
-
-const controllers = require('../controllers')
+const { hookPreprocessor } = require('../controllers/hook')
+const { actionPreprocessor } = require('../controllers/slackAction')
 
 const router = express.Router()
 
