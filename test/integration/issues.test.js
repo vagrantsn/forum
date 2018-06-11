@@ -10,9 +10,15 @@ chai.use(chaiHttp)
 
 describe('Issues', () => {
 
-  it('removes authentication key from new comment', async () => {
+  it('replaces comment created including API key', async () => {
+
     nock('https://api.github.com')
-      .patch('/repos/organization/repository/issues/comments/1')
+      .delete('/repos/organization/repository/issues/comments/1')
+      .query(true)
+      .reply(200)
+
+    nock('https://api.github.com')
+      .post('/repos/organization/repository/issues/1/comments')
       .query(true)
       .reply(200)
 
@@ -30,16 +36,26 @@ describe('Issues', () => {
           owner: {
             login: 'organization'
           }
+        },
+        issue: {
+          number: 1
+        },
+        sender: {
+          login: 'testuser'
         }
       })
     
     expect(response).status(200)
-    expect(response.text).to.eql('comment updated')
   })
 
-  it('removes authentication key from edited comment', async () => {
+  it('replaces edited comment including API key', async () => {
     nock('https://api.github.com')
-      .patch('/repos/organization/repository/issues/comments/1')
+      .delete('/repos/organization/repository/issues/comments/1')
+      .query(true)
+      .reply(200)
+
+    nock('https://api.github.com')
+      .post('/repos/organization/repository/issues/1/comments')
       .query(true)
       .reply(200)
 
@@ -57,11 +73,16 @@ describe('Issues', () => {
           owner: {
             login: 'organization'
           }
+        },
+        issue: {
+          number: 1
+        },
+        sender: {
+          login: 'testuser'
         }
       })
     
     expect(response).status(200)
-    expect(response.text).to.eql('comment updated')
   })
 
   it('notifies opened issue', async () => {
