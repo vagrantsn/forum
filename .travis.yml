@@ -4,5 +4,4 @@ node_js:
 script: yarn test && yarn nyc report --reporter=text-lcov | yarn coveralls
 services:
   - redis-server
-env:
-  - GITHUB_TOKEN=whatInOblivionIsThat
+  - mongodb
