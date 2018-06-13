@@ -1,16 +1,25 @@
 const redis = require('../../../clients/redis')
 const slack = require('../../../clients/slack')
+const github = require('../../../clients/github')
 const { sendMessage } = require('../../../helpers/slack')
 const { createContext } = require('../../../helpers/redis')
+const Supporter = require('../../../helpers/supporter.js')
 
-const generateAssignMessage = (issue, repository, callback_id) => Object.assign({
-  author_name: issue.user.login,
-  title: issue.title,
-  title_link: issue.html_url,
-  text: issue || 'No description provided.',
-  footer: `${repository.full_name} #${issue.number}`,
-  callback_id,
-  actions: [
+const generateAssignMessage = (issue, repository, callback_id) => {
+  message = {
+    author_name: issue.user.login,
+    title: issue.title,
+    title_link: issue.html_url,
+    text: issue || 'No description provided.',
+    footer: `${repository.full_name} #${issue.number}`,
+    callback_id
+  }
+
+  return message;
+}
+
+const generateActions = () => {
+  return [
     {
       name: 'assign',
       text: 'Assign',
@@ -33,7 +42,7 @@ const generateAssignMessage = (issue, repository, callback_id) => Object.assign(
       ]
     }
   ]
-})
+}
 
 const issue = async (req, res) => {
   const {
@@ -53,15 +62,30 @@ const issue = async (req, res) => {
   })
 
   let contextId = createContext(redis, contextData)
+  const nextSupporter = await Supporter.getNextSupporter()
+  const assignMessage = generateAssignMessage(issue, repository, contextId)
 
-  const assignToIssue = generateAssignMessage(issue, repository, contextId)
+  if ( !nextSupporter ) {
+    assignMessage.actions = generateActions()
+  } else {
+    await github.issues.addAssigneesToIssue({
+      owner: repository.owner.login,
+      repo: repository.name,
+      number: issue.number,
+      assignees: [
+        nextSupporter.user
+      ]
+    })
+      .then( (res) =>  console.log('Issue atribuida à ', res.data.assignee.login) )
+      .catch( (err) => console.log(err) )
+  }
 
   try {
     await sendMessage(slack, {
-      channel: process.env.NOTIFICATION_CHANNEL,
+      channel: nextSupporter.slack_id || process.env.NOTIFICATION_CHANNEL,
       message: 'Issue arrived!',
       attachments: [
-        assignToIssue
+        assignMessage
       ]
     })
 
