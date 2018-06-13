@@ -7,18 +7,27 @@ services:
     ports:
       - 3000:3000
     environment:
-      - REDIS_HOST=redis_forum
+      - REDIS_HOST=redis://redis-forum
+      - DB_URL=mongodb://mongo-forum:27017/forum
     env_file: .env
     volumes:
       - .:/src
     depends_on:
-      - mongo_forum
-      - redis_forum
+      - mongo-forum
+      - redis-forum
+    networks:
+      - forum-network
 
-  mongo_forum:
+  mongo-forum:
     image: mongo
-    container_name: "mongo_forum"
+    networks:
+      - forum-network
 
-  redis_forum:
+  redis-forum:
     image: redis
-    container_name: "redis_forum"
+    networks:
+      - forum-network
+
+networks:
+  forum-network:
+    driver: bridge
