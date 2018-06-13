@@ -5,13 +5,25 @@ const nock = require('nock')
 const redis = require('../../clients/redis')
 const server = require('../../index')
 
+const Supporter = require('../../database/models/supporter')
+
 const expect = chai.expect
 chai.use(chaiHttp)
 
 describe('Issues', () => {
+  before( async () => {
+    await Supporter.remove({})
+    await Supporter.create({
+      is_active : true,
+      name : "Agumon",
+      user : "agumon",
+      email : "agumon@teste.com",
+      slack_id : "123",
+      password : "teste123",
+      last_assign_date: new Date() })
+  })
 
   it('replaces comment created including API key', async () => {
-
     nock('https://api.github.com')
       .delete('/repos/organization/repository/issues/comments/1')
       .query(true)
@@ -21,7 +33,7 @@ describe('Issues', () => {
       .post('/repos/organization/repository/issues/1/comments')
       .query(true)
       .reply(200)
-
+    
     let response = await chai.request(server)
       .post('/hooks')
       .set('x-github-event', 'issue_comment')
@@ -193,7 +205,7 @@ describe('Issues', () => {
             }
           ],
           user: {
-            id: 'U9482EVRR'
+            id: 123
           }
       })
     })
@@ -237,7 +249,10 @@ describe('Issues', () => {
                 }
               ]
             }
-          ]
+          ],
+          user: {
+            id: 123
+          }
         })
       })
 
