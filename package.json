@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "npm run test:integration && npm run test:unit",
-    "test:integration": "env NODE_ENV=test nyc mocha test/integration --timeout 5000 --exit",
+    "test:integration": "env PORT=3001 NODE_ENV=test nyc mocha test/integration --timeout 5000 --exit",
     "test:unit": "env NODE_ENV=test nyc mocha test/unit --timeout 5000 --exit"
   },
   "author": "",
@@ -20,6 +20,7 @@
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "ioredis": "^3.2.2",
+    "mongoose": "^5.1.4",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
