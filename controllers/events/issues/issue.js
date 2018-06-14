@@ -25,21 +25,6 @@ const generateActions = () => {
       text: 'Assign',
       type: 'button',
       value: 'assign'
-    },
-    {
-      name: 'addlabel',
-      text: 'Add Label',
-      type: 'select',
-      options: [
-        {
-          text: 'Dúvida',
-          value: 'Dúvida'
-        },
-        {
-          text: 'Problema',
-          value: 'Problema'
-        }
-      ]
     }
   ]
 }
