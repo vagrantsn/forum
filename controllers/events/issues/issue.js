@@ -49,6 +49,7 @@ const issue = async (req, res) => {
   let contextId = createContext(redis, contextData)
   const nextSupporter = await Supporter.getNextSupporter()
   const assignMessage = generateAssignMessage(issue, repository, contextId)
+  const channel = !nextSupporter ? process.env.NOTIFICATION_CHANNEL : nextSupporter.slack_id
 
   if ( !nextSupporter ) {
     assignMessage.actions = generateActions()
@@ -67,7 +68,7 @@ const issue = async (req, res) => {
 
   try {
     await sendMessage(slack, {
-      channel: nextSupporter.slack_id || process.env.NOTIFICATION_CHANNEL,
+      channel: channel,
       message: 'Issue arrived!',
       attachments: [
         assignMessage
