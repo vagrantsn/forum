@@ -7,8 +7,9 @@ services:
     ports:
       - 3000:3000
     environment:
-      - REDIS_HOST=redis://redis-forum
-      - DB_URL=mongodb://mongo-forum:27017/forum
+      - REDIS_HOST=redis-forum
+      - MONGO_HOST=mongo-forum
+      - MONGO_DB=forum
     env_file: .env
     volumes:
       - .:/src

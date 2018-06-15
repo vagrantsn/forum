@@ -1,5 +1,5 @@
-var mongoose = require('mongoose')
-var { Schema } = mongoose
+let mongoose = require('mongoose')
+let { Schema } = mongoose
 
 const SupporterSchema = new Schema({
   name: { type: String, required: true },

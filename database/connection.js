@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const bluebird = require('bluebird');
+const config = require('../config');
 mongoose.Promise = bluebird
 
-mongoose.connection.once('error', () => {
-  console.log('mongoose: Error connecting to mongo')
+mongoose.connection.once('error', (e) => {
+  console.error(e)
 })
 
 mongoose.connection.once('open', () => {
@@ -14,4 +15,6 @@ mongoose.connection.once('close', () => {
   console.log('mongoose disconnected')
 })
 
-mongoose.connect(process.env.DB_URL)
+const url = `mongodb://${config.get('mongo').host}:${config.get('mongo').port}/${config.get('mongo').db}`
+const connection = mongoose.connect(url)
+module.exports = connection
