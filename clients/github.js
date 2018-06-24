@@ -1,8 +1,9 @@
 const octokit = require('@octokit/rest')()
+const config = require('../config')
 
 octokit.authenticate({
   type: 'token',
-  token: process.env.GITHUB_TOKEN
+  token: config.get('github').token
 })
 
 module.exports = octokit
