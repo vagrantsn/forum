@@ -1,5 +1,7 @@
-const sendMessage = (slack, payload) => {
-  const { channel, text, attachments } = payload
+const { slack } = require('../clients')
+
+const sendMessage = (payload) => {
+  const { channel, text = '', attachments = [] } = payload
 
   return slack.chat.postMessage({ 
     channel, 

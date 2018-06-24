@@ -6,7 +6,7 @@ const { createContext } = require('../../helpers/redis')
 describe('redis helpers', () => {
   
   it('saves data with universal id', async () => {
-    let contextId = createContext(redis, 'mydata')
+    let contextId = createContext('mydata')
 
     const data = await redis.get(contextId)
 

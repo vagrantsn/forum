@@ -9,7 +9,7 @@ const assign = async (req, res, action) => {
   const supporter = await Supporter.findOne({slack_id: slackUser.id})
 
   if( !supporter ) {
-    return req.status(500).send('Supporter not found')
+    return req.status(500).send('supporter not found')
   }
 
   let actionContext = await redis.get( callback_id )

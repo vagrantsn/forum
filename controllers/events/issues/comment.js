@@ -1,6 +1,7 @@
 const github = require('../../../clients/github')
 
 const { hideAuthenticationKeys } = require('../../../helpers/content')
+const { notifyUserOnIssue } = require('../../../helpers/github')
 
 const comment = async (req, res, next) => {
   const {
@@ -10,9 +11,9 @@ const comment = async (req, res, next) => {
   let publicComment = hideAuthenticationKeys(comment.body, '[...]')
 
   if( publicComment !== comment.body ) {
-    let alertComment = `@${sender.login} Não compartilhe informações sensíveis publicamente! `
-    alertComment += 'Comentário publicado: \n'
-    alertComment += `\> ${publicComment}\n`
+    let notification  = `Não compartilhe informações sensíveis de sua conta!\n\n`
+    notification     += '**Comentário publicado**:\n'
+    notification     += `\> ${publicComment}\n`
 
     await github.issues.deleteComment({
       owner: repository.owner.login,
@@ -20,15 +21,14 @@ const comment = async (req, res, next) => {
       id: comment.id
     })
 
-    await github.issues.createComment({
-      owner: repository.owner.login,
-      repo: repository.name,
+    await notifyUserOnIssue(sender.login, notification, {
       number: issue.number,
-      body: alertComment
+      repo: repository.name,
+      owner: repository.owner.login
     })
   }
 
-  res.send('ok')
+  return res.send('issue comment verified')
 }
 
 module.exports = {

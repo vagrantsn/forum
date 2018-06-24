@@ -1,6 +1,7 @@
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const nock = require('nock')
+const querystring = require('querystring');
 
 const redis = require('../../clients/redis')
 const server = require('../../index')
@@ -61,6 +62,31 @@ describe('Issues', () => {
   })
 
   it('replaces edited comment including API key', async () => {
+
+    const payload = {
+      action: 'edited',
+      comment: {
+        id: 1,
+        body: 'random comment ak_live_qweqwe1231q'
+      },
+      repository: {
+        name: 'repository',
+        owner: {
+          login: 'organization'
+        }
+      },
+      issue: {
+        number: 1
+      },
+      sender: {
+        login: 'testuser'
+      }
+    }
+
+    let notificationToUser = `@${payload.sender.login} Não compartilhe informações sensíveis de sua conta!\n\n`
+    notificationToUser += `**Comentário publicado**:\n`
+    notificationToUser += `\> random comment [...]\n`
+
     nock('https://api.github.com')
       .delete('/repos/organization/repository/issues/comments/1')
       .query(true)
@@ -69,31 +95,16 @@ describe('Issues', () => {
     nock('https://api.github.com')
       .post('/repos/organization/repository/issues/1/comments')
       .query(true)
-      .reply(200)
+      .reply((uri, req) => {
+        expect(JSON.parse(req).body).eql(notificationToUser)
+        return 200
+      })
 
     let response = await chai.request(server)
       .post('/hooks')
       .set('x-github-event', 'issue_comment')
-      .send({
-        action: 'edited',
-        comment: {
-          id: 1,
-          body: 'random comment ak_live_qweqwe1231q'
-        },
-        repository: {
-          name: 'repository',
-          owner: {
-            login: 'organization'
-          }
-        },
-        issue: {
-          number: 1
-        },
-        sender: {
-          login: 'testuser'
-        }
-      })
-    
+      .send(payload)
+
     expect(response).status(200)
   })
 
@@ -101,7 +112,18 @@ describe('Issues', () => {
     nock('https://slack.com')
       .post('/api/chat.postMessage')
       .query(true)
-      .reply(200, { ok: true })
+      .reply(function(uri, req) {
+        const { attachments } = querystring.parse(req)
+
+        expect(JSON.parse(attachments)[0].title).eql('issue title')
+        expect(JSON.parse(attachments)[0].title_link).eql('https://github.com')
+        
+        return { ok: true }
+      })
+
+    nock('https://api.github.com')
+      .post('/repos/owner/repository-name/issues/1/assignees')
+      .reply(200)
 
     let response = await chai.request(server)
       .post('/hooks')
@@ -118,6 +140,7 @@ describe('Issues', () => {
           }
         },
         repository: {
+          name: 'repository-name',
           full_name: 'owner/repository-name',
           owner: {
             login: 'owner'
@@ -126,6 +149,7 @@ describe('Issues', () => {
       })
 
     expect(response).status(200)
+    expect(response.text).eql('slack notification succeeded')
   })
 
   it('notifies failed notification for new issue', async () => {
@@ -134,6 +158,10 @@ describe('Issues', () => {
       .query(true)
       .reply(200, { ok: false })
 
+    nock('https://api.github.com')
+      .post('/repos/owner/repository-name/issues/1/assignees')
+      .reply(200)
+
     let response = await chai.request(server)
       .post('/hooks')
       .set('x-github-event', 'issues')
@@ -149,6 +177,7 @@ describe('Issues', () => {
           }
         },
         repository: {
+          name: 'repository-name',
           full_name: 'owner/repository-name',
           owner: {
             login: 'owner'
@@ -157,6 +186,7 @@ describe('Issues', () => {
       })
 
     expect(response).status(500)
+    expect(response.text).eql('slack notification failed')
   })
 
   it('assigns to issue on slack action', async () => {
