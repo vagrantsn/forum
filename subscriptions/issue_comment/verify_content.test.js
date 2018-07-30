@@ -4,7 +4,6 @@ const nock = require('nock')
 const { replaceSensitiveInformation } = require('./verify_content')
 
 describe('Issue comment callback: verify content', () => {
-
   it('removes sensitive content from issue body and title', async () => {
     let sensitiveContent = 'qweqwe ak_live_qweqwe'
     let expected = 'qweqwe [...]'
@@ -18,9 +17,9 @@ describe('Issue comment callback: verify content', () => {
       .reply((uri, req) => {
         const { body } = JSON.parse(req)
 
-        let notificationToUser  = `@githubuser Não compartilhe informações sensíveis de sua conta!\n\n`
-        notificationToUser     += '**Comentário publicado**:\n'
-        notificationToUser     += `\> ${expected}\n`
+        let notificationToUser = `@githubuser Não compartilhe informações sensíveis de sua conta!\n\n`
+        notificationToUser += '**Comentário publicado**:\n'
+        notificationToUser += `\> ${expected}\n`
 
         expect(body).eql(notificationToUser)
       })
@@ -46,5 +45,4 @@ describe('Issue comment callback: verify content', () => {
       }
     })
   })
-
 })

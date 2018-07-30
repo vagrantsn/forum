@@ -1,6 +1,11 @@
 const issues = require('../../hooks/events/issues')
 const config = require('../../config')
-const { contentHelper, githubHelper, slackHelper, redisHelper } = require('../../helpers')
+const {
+  contentHelper,
+  githubHelper,
+  slackHelper,
+  redisHelper
+} = require('../../helpers')
 
 const ALERT_LEVEL = {
   NONE: 0,
@@ -8,49 +13,52 @@ const ALERT_LEVEL = {
   HIGH: 2
 }
 
-const hasSensitiveContent = string => 
+const hasSensitiveContent = string =>
   contentHelper.hasEncryptionKey(string) || contentHelper.hasApiKey(string)
 
 const getAlertLevel = issue => {
-
   let alertLevel = ALERT_LEVEL.NONE
 
-  if( hasSensitiveContent(issue.body) ) {
+  if (hasSensitiveContent(issue.body)) {
     alertLevel = ALERT_LEVEL.MEDIUM
   }
 
-  if( hasSensitiveContent(issue.title) ) {
+  if (hasSensitiveContent(issue.title)) {
     alertLevel = ALERT_LEVEL.HIGH
   }
 
   return alertLevel
 }
 
-const generateNotificationAttachment = (issue) => {
+const generateNotificationAttachment = issue => {
   let alertLevel = getAlertLevel(issue)
 
   let title = issue.title
   let text = issue.body
   let fields = []
 
-  if( alertLevel === ALERT_LEVEL.MEDIUM ) {
+  if (alertLevel === ALERT_LEVEL.MEDIUM) {
     title = 'Issue created with sensitive content!'
     text = contentHelper.hideAuthenticationKeys(issue.body, '[...]')
-    fields = [{
-      title: 'Priority',
-      value: 'Medium',
-      short: false
-    }]
+    fields = [
+      {
+        title: 'Priority',
+        value: 'Medium',
+        short: false
+      }
+    ]
   }
 
-  if( alertLevel === ALERT_LEVEL.HIGH ) {
+  if (alertLevel === ALERT_LEVEL.HIGH) {
     title = 'Issue created with sensitive content on title!'
     text = contentHelper.hideAuthenticationKeys(issue.title, '[...]')
-    fields = [{
-      title: 'Priority',
-      value: 'High',
-      short: false
-    }]
+    fields = [
+      {
+        title: 'Priority',
+        value: 'High',
+        short: false
+      }
+    ]
   }
 
   let attachment = {
@@ -71,12 +79,12 @@ const notifyOnSlack = ({ issue, repository }) => {
     text: 'New Issue!'
   }
 
-  if( hasSensitiveContent(issue.body) ) {
+  if (hasSensitiveContent(issue.body)) {
     alertLevel = ALERT_LEVEL.medium
     delete slackNotification.text
   }
 
-  if( hasSensitiveContent(issue.title) ) {
+  if (hasSensitiveContent(issue.title)) {
     alertLevel = ALERT_LEVEL.high
     delete slackNotification.text
   }
@@ -85,42 +93,45 @@ const notifyOnSlack = ({ issue, repository }) => {
   attachment.author_name = `${repository.full_name} #${issue.number}`
   attachment.author_link = issue.html_url
 
-  if( issue.assignees.length === 0 ) {
-    let callback_id = redisHelper.createContext(JSON.stringify({
-      repository: {
-        name: repository.name,
-        owner: repository.owner.login
-      },
-      issue: {
-        number: issue.number
-      }
-    }))
+  if (issue.assignees.length === 0) {
+    let callback_id = redisHelper.createContext(
+      JSON.stringify({
+        repository: {
+          name: repository.name,
+          owner: repository.owner.login
+        },
+        issue: {
+          number: issue.number
+        }
+      })
+    )
 
-    attachment.callback_id = callback_id,
-    attachment.actions = [{
-      name: 'assign',
-      text: 'Assign',
-      type: 'button',
-      value: 'assign'
-    }]
+    ;(attachment.callback_id = callback_id),
+    (attachment.actions = [
+      {
+        name: 'assign',
+        text: 'Assign',
+        type: 'button',
+        value: 'assign'
+      }
+    ])
   }
 
-  slackNotification.attachments = [
-    attachment
-  ]
+  slackNotification.attachments = [attachment]
 
   slackHelper.sendMessage(slackNotification)
 }
 
-issues.subscribe(payload => {
-  const { action } = payload
+issues
+  .subscribe(payload => {
+    const { action } = payload
 
-  switch(action) {
+    switch (action) {
     case 'opened':
       notifyOnSlack(payload)
-  }
-}).priority(1)
-
+    }
+  })
+  .priority(1)
 
 module.exports = {
   notifyOnSlack,

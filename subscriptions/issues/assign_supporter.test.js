@@ -1,13 +1,15 @@
 const nock = require('nock')
 const querystring = require('querystring')
 
-const { assignNextSupporter, getNextActiveSupporter } = require('./assign_supporter')
+const {
+  assignNextSupporter,
+  getNextActiveSupporter
+} = require('./assign_supporter')
 
 const db = require('../../database/connection')
 const Supporter = require('../../database/models/supporter')
 
 describe('Supporter assignment on issue opened event', () => {
-
   beforeEach(async () => {
     await Supporter.deleteMany({})
 
@@ -33,11 +35,10 @@ describe('Supporter assignment on issue opened event', () => {
   })
 
   it('assigns next supporter to issue', async () => {
-
     nock('https://api.github.com')
       .post('/repos/owner/repo/issues/1/assignees')
       .query(true)
-      .reply( (uri, req) => {
+      .reply((uri, req) => {
         const body = JSON.parse(req)
 
         expect(body.assignees.length).toBe(1)
@@ -56,5 +57,4 @@ describe('Supporter assignment on issue opened event', () => {
       }
     })
   })
-
 })
