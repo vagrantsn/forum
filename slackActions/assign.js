@@ -9,7 +9,7 @@ const assignSupporterToIssue = async ({ callback_id, user, response_url }) => {
     user: 'vagnervst'
   }
 
-  if( !supporter ) {
+  if (!supporter) {
     return axios.post(response_url, {
       replace_original: false,
       text: `Supporter not found for ${user.name} #${user.id}`
@@ -26,16 +26,16 @@ const assignSupporterToIssue = async ({ callback_id, user, response_url }) => {
       owner: repository.owner,
       repo: repository.name,
       number: issue.number,
-      assignees: [
-        supporter.user
-      ]
+      assignees: [supporter.user]
     })
 
     axios.post(response_url, {
       replace_original: true,
-      text: `Supporter ${supporter.user} successfully assigned to issue ${issueInfo}`
+      text: `Supporter ${
+        supporter.user
+      } successfully assigned to issue ${issueInfo}`
     })
-  } catch(e) {
+  } catch (e) {
     axios.post(response_url, {
       replace_original: false,
       text: `There was an error assigning to issue ${issueInfo}`

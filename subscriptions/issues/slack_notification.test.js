@@ -1,9 +1,11 @@
 const nock = require('nock')
 const querystring = require('querystring')
-const { notifyOnSlack, generateNotificationAttachment } = require('./slack_notification')
+const {
+  notifyOnSlack,
+  generateNotificationAttachment
+} = require('./slack_notification')
 
 describe('Slack Notification on issue opened event', () => {
-
   describe('Defines notification alert level correctly', () => {
     let issue
 
@@ -85,7 +87,9 @@ describe('Slack Notification on issue opened event', () => {
         expect(attachment.fields.length).toBe(1)
         expect(attachment.fields[0].title).toBe('Priority')
         expect(attachment.fields[0].value).toBe('High')
-        expect(attachment.title).toBe('Issue created with sensitive content on title!')
+        expect(attachment.title).toBe(
+          'Issue created with sensitive content on title!'
+        )
         expect(attachment.text).toBe('Issue Title [...]')
       }
 
@@ -102,7 +106,6 @@ describe('Slack Notification on issue opened event', () => {
 
     it('alerts issue with sensitive content on body', async () => {
       let validateApiRequest = (uri, req) => {
-
         let { attachments } = querystring.parse(req)
         let attachment = JSON.parse(attachments)[0]
 
@@ -149,7 +152,5 @@ describe('Slack Notification on issue opened event', () => {
 
       await notifyOnSlack({ issue, repository })
     })
-
   })
-
 })

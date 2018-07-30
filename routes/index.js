@@ -5,8 +5,7 @@ const hooks = require('../hooks')
 const slackActions = require('../slackActions')
 
 router.post('/hooks', (req, res) => {
-
-  for( let hook in hooks ) {
+  for (let hook in hooks) {
     hooks[hook].process(req, res)
   }
 
@@ -18,7 +17,7 @@ router.post('/actions', (req, res) => {
   payload = JSON.parse(payload)
   const { actions } = payload
 
-  actions.map( action => {
+  actions.map(action => {
     let fn = slackActions[action.name]
     fn(payload)
   })

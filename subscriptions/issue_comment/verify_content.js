@@ -7,20 +7,24 @@ const hideAuthenticationKeys = (string, replace) => {
   return string.replace(findKey, replace)
 }
 
-const replaceSensitiveInformation = async ({ issue, comment, repository, sender }) => {
+const replaceSensitiveInformation = async ({
+  issue,
+  comment,
+  repository,
+  sender
+}) => {
   const secureComment = hideAuthenticationKeys(comment.body, '[...]')
 
-  if( secureComment !== comment.body ) {
-
+  if (secureComment !== comment.body) {
     github.issues.deleteComment({
       owner: repository.owner.login,
       repo: repository.name,
       comment_id: comment.id
     })
 
-    let notification  = `Não compartilhe informações sensíveis de sua conta!\n\n`
-    notification     += '**Comentário publicado**:\n'
-    notification     += `\> ${secureComment}\n`
+    let notification = `Não compartilhe informações sensíveis de sua conta!\n\n`
+    notification += '**Comentário publicado**:\n'
+    notification += `\> ${secureComment}\n`
 
     await githubHelper.notifyUserOnIssue(sender.login, notification, {
       number: issue.number,
@@ -37,9 +41,9 @@ module.exports = {
 }
 
 issueComment.subscribe(payload => {
-
-  switch(payload.action) {
-    case 'created': case 'updated':
+  switch (payload.action) {
+    case 'created':
+    case 'updated':
       replaceSensitiveInformation(payload)
   }
 })

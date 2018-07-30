@@ -4,7 +4,6 @@ const nock = require('nock')
 const { replaceSensitiveInformation } = require('./verify_content')
 
 describe('Issue callback: verify content', () => {
-
   it('removes sensitive content from issue body and title', async () => {
     let sensitiveContent = 'qweqwe ak_live_qweqwe'
     let expected = 'qweqwe [...]'
@@ -39,5 +38,4 @@ describe('Issue callback: verify content', () => {
       }
     })
   })
-
 })

@@ -8,8 +8,8 @@ describe('Hook', () => {
   })
 
   it('subscribes callbacks', () => {
-    TestHook.subscribe( jest.fn() )
-    TestHook.subscribe( jest.fn() )
+    TestHook.subscribe(jest.fn())
+    TestHook.subscribe(jest.fn())
 
     expect(TestHook.getSubscriptions()).toHaveLength(2)
   })
@@ -26,8 +26,8 @@ describe('Hook', () => {
   it('calls subscribed callbacks ordered by priority', () => {
     let finishLine = 0
 
-    let first = () => finishLine === 0? finishLine = 'first' : false
-    let second = () => finishLine === 0? finishLine = 'second' : false
+    let first = () => (finishLine === 0 ? (finishLine = 'first') : false)
+    let second = () => (finishLine === 0 ? (finishLine = 'second') : false)
 
     TestHook.subscribe(first).priority(0)
     TestHook.subscribe(second).priority(1)
@@ -47,5 +47,4 @@ describe('Hook', () => {
 
     expect(fn).toHaveBeenCalledTimes(0)
   })
-
 })

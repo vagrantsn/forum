@@ -8,7 +8,6 @@ const db = require('../database/connection')
 const Supporter = require('../database/models/supporter')
 
 describe('Slack Assign Button', () => {
-
   beforeEach(async () => {
     await Supporter.deleteMany({})
 
@@ -24,40 +23,39 @@ describe('Slack Assign Button', () => {
   })
 
   it('assigns supporter on button click', async () => {
-
     nock('https://api.github.com')
       .post('/')
       .reply(() => {
         done()
       })
       .post('/repos/owner/repo/issues/1/assignees')
-      .reply( (uri, req) => {
+      .reply((uri, req) => {
         const body = JSON.parse(req)
 
         expect(body.assignees.length).toBe(1)
-        expect(body.assignees).toEqual([
-          'supporter'
-        ])
+        expect(body.assignees).toEqual(['supporter'])
       })
 
-      let contextData = JSON.stringify({
-        repository: {
-          name: 'repo',
-          owner: 'owner'
-        },
-        issue: {
-          number: 1
-        }
-      })
+    let contextData = JSON.stringify({
+      repository: {
+        name: 'repo',
+        owner: 'owner'
+      },
+      issue: {
+        number: 1
+      }
+    })
 
     let callback_id = redisHelper.createContext(contextData)
 
     const payload = {
-      actions: [{
-        name: 'assign',
-        type: 'button',
-        value: 'assign'
-      }],
+      actions: [
+        {
+          name: 'assign',
+          type: 'button',
+          value: 'assign'
+        }
+      ],
       callback_id,
       user: {
         id: '1'
@@ -67,5 +65,4 @@ describe('Slack Assign Button', () => {
 
     assignSupporterToIssue(payload)
   })
-
 })
