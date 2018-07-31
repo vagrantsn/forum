@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "env NODE_ENV=test jest --forceExit -i --env=node --verbose --globalSetup ./test/setup.js"
   },
   "author": "",
@@ -19,7 +20,8 @@
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "ioredis": "^3.2.2",
-    "mongoose": "^5.1.6"
+    "mongoose": "^5.1.6",
+    "nodemon": "^1.18.3" 
   },
   "devDependencies": {
     "eslint": "^5.2.0",
