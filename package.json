@@ -20,8 +20,10 @@
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "ioredis": "^3.2.2",
+    "jimp": "^0.3.0",
     "mongoose": "^5.1.6",
-    "nodemon": "^1.18.3" 
+    "nodemon": "^1.18.3",
+    "tesseract.js": "^1.0.10"
   },
   "devDependencies": {
     "eslint": "^5.2.0",

@@ -1,3 +1,5 @@
+const jest = require('jest')
+
 const setup = () => {
   process.env.GITHUB_TOKEN = '123'
   process.env.DB_URL = 'mongodb://localhost/testing'

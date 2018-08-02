@@ -7,10 +7,15 @@ const replaceSensitiveInformation = async ({ issue, repository }) => {
     issue.title,
     '[...]'
   )
-  const secureIssueBody = contentHelper.hideAuthenticationKeys(
+  const secureIssueTextBody = contentHelper.hideAuthenticationKeys(
     issue.body,
     '[...]'
   )
+  const secureIssueImageBody = await contentHelper.hideImagesWithSensibleData(
+    secureIssueTextBody,
+  )
+
+  const secureIssueBody = secureIssueTextBody == secureIssueImageBody ? secureIssueTextBody : secureIssueImageBody;
 
   let hasDifference = {
     title: secureIssueTitle !== issue.title,
