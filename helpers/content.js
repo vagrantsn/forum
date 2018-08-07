@@ -30,9 +30,9 @@ const getImageText = async image => {
 const findImageInText = url => new RegExp(`(\!?\\[.+\\])?\\(?${url}\\)?`, 'g')
 
 const hasEncryptionKey = string =>
-  string.match(/ek_(live|test)_([0-9A-z])/g) !== null
+  string.match(/ek.(live|test).([0-9A-z])/g) !== null
 
-const hasApiKey = string => string.match(/ak_(live|test)_([0-9A-z])/g) !== null
+const hasApiKey = string => string.match(/ak.(live|test).([0-9A-z])/g) !== null
 
 const hasApiKeyOrEncryptionKey = string =>
   hasEncryptionKey(string) || hasApiKey(string)
@@ -45,6 +45,7 @@ const hideAuthenticationKeys = (string, replace) => {
 
 const hideImagesWithSensibleData = async string => {
   const imagesUrl = getImagesLink(string);
+
   if(!imagesUrl) {
     return string
   }
@@ -53,10 +54,12 @@ const hideImagesWithSensibleData = async string => {
 
   const processedImages = await Promise.all(imageContents)
 
+  console.log(processedImages)
+
   imagesUrl.forEach((value, index) => {
     if(hasApiKeyOrEncryptionKey(processedImages[index][0]) && hasApiKeyOrEncryptionKey(processedImages[index][1])) {
       string = string.replace(
-        findImageInText(image.url),
+        findImageInText(imagesUrl[index]),
         '[...Imagem removida por conter dados sensíveis...]'
       )
     }
@@ -66,7 +69,7 @@ const hideImagesWithSensibleData = async string => {
 }
 
 const getImageContent = async url => {
-  return await Promise.all([getImage(url), getImage(url, 2.5)])
+  return await Promise.all([getImage(url), getImage(url, 1.8)])
 }
 
 const removeImage = (url, string) => {
