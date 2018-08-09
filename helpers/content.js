@@ -24,15 +24,17 @@ const getImageText = async image => {
   const imageText = await Tesseract.recognize(image, {
     lang: 'por'
   })
+
   return imageText.text
 }
 
 const findImageInText = url => new RegExp(`(\!?\\[.+\\])?\\(?${url}\\)?`, 'g')
 
 const hasEncryptionKey = string =>
-  string.match(/ek.(live|test).([0-9A-z])/g) !== null
+  string.match(/ek(_|\s)?(live|test)(_|\s)?([0-9A-z])/g) !== null
 
-const hasApiKey = string => string.match(/ak.(live|test).([0-9A-z])/g) !== null
+const hasApiKey = string =>
+  string.match(/ak(_|\s)?(live|test)(_|\s)?([0-9A-z])/g) !== null
 
 const hasApiKeyOrEncryptionKey = string =>
   hasEncryptionKey(string) || hasApiKey(string)
@@ -44,20 +46,21 @@ const hideAuthenticationKeys = (string, replace) => {
 }
 
 const hideImagesWithSensibleData = async string => {
-  const imagesUrl = getImagesLink(string);
+  const imagesUrl = getImagesLink(string)
 
-  if(!imagesUrl) {
+  if (!imagesUrl) {
     return string
   }
 
-  const imageContents = await imagesUrl.map(url => getImageContent(url))
-
-  const processedImages = await Promise.all(imageContents)
-
-  console.log(processedImages)
+  const imageContents = await Promise.all(
+    await imagesUrl.map(url => getImageContent(url))
+  )
 
   imagesUrl.forEach((value, index) => {
-    if(hasApiKeyOrEncryptionKey(processedImages[index][0]) && hasApiKeyOrEncryptionKey(processedImages[index][1])) {
+    if (
+      hasApiKeyOrEncryptionKey(imageContents[index][0]) ||
+      hasApiKeyOrEncryptionKey(imageContents[index][1])
+    ) {
       string = string.replace(
         findImageInText(imagesUrl[index]),
         '[...Imagem removida por conter dados sensíveis...]'
@@ -69,16 +72,12 @@ const hideImagesWithSensibleData = async string => {
 }
 
 const getImageContent = async url => {
-  return await Promise.all([getImage(url), getImage(url, 1.8)])
-}
-
-const removeImage = (url, string) => {
-  return string.replace(findImageInText, '[Imagem com dados sensíveis]')
+  return await Promise.all([getImage(url, 1), getImage(url, 2)])
 }
 
 module.exports = {
   hasApiKey,
   hasEncryptionKey,
   hideAuthenticationKeys,
-  hideImagesWithSensibleData,
+  hideImagesWithSensibleData
 }
