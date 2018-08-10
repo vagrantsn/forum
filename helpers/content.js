@@ -2,10 +2,12 @@ const Promise = require('bluebird')
 const Tesseract = require('tesseract.js')
 const Jimp = require('jimp')
 
+const findImageMarkdown = url => new RegExp(`(\!?\\[.+\\])?\\(?${url}\\)?`, 'g')
+
 const getImagesLink = string => {
   const findImagesLink = /https?:\/\/[^\s]+\.png|jpg|jpeg/g
 
-  return string.match(findImagesLink) ? string.match(findImagesLink) : null
+  return string.match(findImagesLink)
 }
 
 const getImage = (url, scale = 1) =>
@@ -28,16 +30,13 @@ const getImageText = async image => {
   return imageText.text
 }
 
-const findImageInText = url => new RegExp(`(\!?\\[.+\\])?\\(?${url}\\)?`, 'g')
-
 const hasEncryptionKey = string =>
-  string.match(/ek(_|\s)?(live|test)(_|\s)?([0-9A-z])/g) !== null
+  string.match(/ek(_|\s)?(live|test)(_|\s)?([0-9A-z])/g)
 
 const hasApiKey = string =>
-  string.match(/ak(_|\s)?(live|test)(_|\s)?([0-9A-z])/g) !== null
+  string.match(/ak(_|\s)?(live|test)(_|\s)?([0-9A-z])/g)
 
-const hasApiKeyOrEncryptionKey = string =>
-  hasEncryptionKey(string) || hasApiKey(string)
+const hasApiKeyOrEncryptionKey = string => hasEncryptionKey(string) || hasApiKey(string)
 
 const hideAuthenticationKeys = (string, replace) => {
   const findKey = /(a|e)k_(live|test)_([0-9A-z])*/g
@@ -62,7 +61,7 @@ const hideImagesWithSensibleData = async string => {
       hasApiKeyOrEncryptionKey(imageContents[index][1])
     ) {
       string = string.replace(
-        findImageInText(imagesUrl[index]),
+        findImageMarkdown(imagesUrl[index]),
         '[...Imagem removida por conter dados sensíveis...]'
       )
     }
@@ -72,7 +71,7 @@ const hideImagesWithSensibleData = async string => {
 }
 
 const getImageContent = async url => {
-  return await Promise.all([getImage(url, 1), getImage(url, 2)])
+  return await Promise.all([getImage(url), getImage(url, 2)])
 }
 
 module.exports = {
